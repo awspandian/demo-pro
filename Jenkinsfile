@@ -26,5 +26,18 @@ sh 'mvn install'
                 }
             }
         }
+        stage('Push to DockerHub') {
+            steps {
+                script{
+                    docker.withregistery('https://registry.hub.docker.com', 'dd'){
+                        app.push(#${env.BUILD_NUMBER}")
+                        app.push("latest")         
+                    }
+
+
+                    
+                }
+            }
+        }
 }
 }
