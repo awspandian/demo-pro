@@ -30,7 +30,7 @@ sh 'mvn install'
             steps {
                 script{
                     docker.withregistery('https://registry.hub.docker.com', 'dd'){
-                        app.push(#${env.BUILD_NUMBER}")
+                        app.push("${env.BUILD_NUMBER}")
                         app.push("latest")         
                     }
 
