@@ -15,9 +15,7 @@ sh 'mvn install'
 }
 }
         stage ('Build Docker Image') {
-            when {
-                branch 'j16'
-            }
+
             steps {
                 script {
                   app = docker.build("dockerpandian/june")
