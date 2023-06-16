@@ -14,13 +14,5 @@ bat 'mvn install'
 
 }
 }
-stage('Deployment'){
-steps {
-deploy adapters: [tomcat9(credentialsId: 'web-m03', path: '', url: 'http://localhost:9090/')], contextPath: 'm03-pipe', war: '**/*.war'
-
-}
-}
-
-    }
 }
 
