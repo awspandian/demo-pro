@@ -43,14 +43,14 @@ sh 'mvn install'
 			milestone(1)
 			withCredentials([usernamePassword(credentialsID: 'webserver' , usernameVariable: 'USERNAME' , passwordVariable: 'USERPASS') ]) {
 			script {
-			sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker pull dockerpandian/june:${env.BUILD_NAME}\"" 
-			try {
-				sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker stop hippo\""
+			  sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker pull dockerpandian/june:${env.BUILD_NUMBER}\""
+			  try {
+			    sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker stop hippo\""
 				sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker rm hippo\""
 				} catch (err){
 				echo: 'caught error: $err'
 							}
-			sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ " docekr ru --restart always --name hippo -p 8080:8080 -d dockerpandian/june:${env.BUILD_NAME}\"" 
+			sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ " docker ru --restart always --name hippo -p 8080:8080 -d dockerpandian/june:${env.BUILD_NAME}\"" 
 			}
 			
 			}
