@@ -33,11 +33,28 @@ sh 'mvn install'
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")         
                     }
-
-
-                    
+  
                 }
             }
         }
+		stage ('Deploy to production') {
+		steps{
+		input 'Deploy to production?'
+			milestone(1)
+			withCredentials([usernamePassword(credentialsID: 'webserver' , usernameVariable: 'USERNAME' , passwordVariable: 'USERPASS') ]) {
+			script {
+			sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker pull dockerpandian/june:${env.BUILD_NAME}\"" 
+			try {
+				sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker stop hippo\""
+				sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker rm hippo\""
+				} catch (err){
+				echo: 'caught error: $err'
+							}
+			sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ " docekr ru --restart always --name hippo -p 8080:8080 -d dockerpandian/june:${env.BUILD_NAME}\"" 
+			}
+			
+			}
+		}
+		}
 }
 }
