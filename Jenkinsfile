@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('SCM') {
             steps {
-                git branch: 'm03', url: 'https://github.com/awspandian/demo-pro.git'
+                git branch: 'j16', url: 'https://github.com/awspandian/demo-pro.git'
             }
         }
 stage('Build'){
