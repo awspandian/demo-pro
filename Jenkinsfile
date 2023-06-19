@@ -37,24 +37,24 @@ sh 'mvn install'
                 }
             }
         }
-		stage ('Deploy to production') {
-		steps{
-		input 'Deploy to production?'
-			milestone(1)
-			withCredentials([usernamePassword(credentialsID: 'webserver' , usernameVariable: 'USERNAME' , passwordVariable: 'USERPASS') ]) {
-			script {
-			  sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker pull dockerpandian/june:${env.BUILD_NUMBER}\""
-			  try {
-			    sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker stop hippo\""
-				sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ "docker rm hippo\""
-				} catch (err){
-				echo: 'caught error: $err'
-							}
-			sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \ " docker ru --restart always --name hippo -p 8080:8080 -d dockerpandian/june:${env.BUILD_NAME}\"" 
-			}
-			
-			}
-		}
-		}
-}
-}
+        stage('DeployToProduction') {
+
+            steps {
+                input 'Deploy to Production?'
+                milestone(1)
+                withCredentials([usernamePassword(credentialsId: 'webserver', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                    script {
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker pull dockerpandian/ddeploy-9am:${env.BUILD_NUMBER}\""
+                        try {
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker stop azcs\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker rm azcs\""
+                        } catch (err) {
+                            echo: 'caught error: $err'
+                        }
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name azcs -p 8080:8080 -d dockerpandian/june:${env.BUILD_NUMBER}\""
+                    }
+                }
+            }
+        }
+    }
+}	
