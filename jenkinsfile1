@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+ parameters {
+	choice(name: 'BRANCH_TO_BUILD', choices: ['j16', 'm03', 'war'], description: 'choose the branch to build') }
+ triggers {
+        cron('H/02 * * * *')
+    }
+
+    stages {
+        stage('scm') {
+            steps {
+                git branch: "${params.BRANCH_TO_BUILD}", url: 'https://github.com/awspandian/demo-pro.git'
+            }
+        }
+	stage('Build'){
+		steps {
+			bat 'mvn clean'
+			bat 'mvn install'
+			}
+			}
+	stage('Deploy') {
+		steps{
+			deploy adapters: [tomcat9(credentialsId: 'web-m28', path: '', url: 'http://localhost:9090/')], contextPath: 'j22-pipe', war: '**/*.war'
+			}				
+				}
+    }
+}
