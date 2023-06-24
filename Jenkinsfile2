@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('SCM') {
+            steps {
+               git branch: 'j16', url: 'https://github.com/awspandian/demo-pro.git'
+            }
+        }
+		 stage('BUILD') {
+            steps {
+               sh 'mvn clean'
+			   sh 'mvn install'
+            }
+        }
+		 stage('BUIld Docker Image') {
+            steps {
+				script{
+					app = docker.build("dockerpandian/j24")
+					app.inside{
+						sh 'echo$(curl localhost:8080)'
+						}
+					}
+        
+            }
+        }
+		stage('Docker Image Push to DockerHub') {
+            steps {
+			 script{
+			   docker.withRegistry('https://registry.hub.docker.com', 'docker') {
+					app.push("${env.BUILD_NUMBER}")
+					app.push("latest")
+			   }
+			 }
+					}
+				}
+										
+		stage('Deploy to production') {
+            steps {			
+				input 'Deploy to Production?'
+				milestone(1)
+				 withCredentials([usernamePassword(credentialsId: 'pdro1' ,usernameVariable: 'USERNAME' , passwordVariable: 'USERPASS')]) {
+				 script {
+					sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker pull dockerpandian/j24:${env.BUILD_NUMBER}\""
+					try {
+					  sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker stop hippo\""
+					  sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker rm hippo\""
+					  } catch (err) {
+						echo: 'caught error: $err'
+					  }
+					  sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name hippo -p 8080:8080 -d dockerpandian/j24:${env.BUILD_NUMBER}\""
+					}
+				 }
+				 
+				 }
+				 }
+		
+    }
+}
