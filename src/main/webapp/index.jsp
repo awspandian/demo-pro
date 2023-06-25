@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2> docker deployment on Jube 24th using pipleine </h2>
+<h2> freestyle 25th of june </h2>
 </body>
 </html>
